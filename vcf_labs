@@ -1,0 +1,20 @@
+**Simultanous Cluster operations**
+https://core-vmware.bravais.com/s/qa8gDoMYEVSMyTKZxPOu
+
+VSAN controller list command  
+
+esxcli vsan debug controller list
+
+Deploying SDDC WL Domain using ESA 
+
+ https://core-vmware.bravais.com/s/vwXrcldmUkv1LFO3QPH3
+
+Management Cluster Stretching
+https://core-vmware.bravais.com/s/M6rygkDnRYq5xQhnnlN9
+
+Certificate Authority in SDDC manager
+LCM DEployment
+https://core-vmware.bravais.com/s/1TgB6dsXNcHpcO69JTYT 
+
+
+
