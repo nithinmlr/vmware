@@ -1,0 +1,27 @@
+
+#GetGPUProfile ..Limitation you need to connect to VCenter mention the cluster Name .
+#IF you have multiple GPU assigned then this will return as System object
+
+$clusterName = "EnterClusterName"
+$vms = Get-Cluster $clusterName | Get-VM
+
+$results = @()
+$documentsFolder = [Environment]::GetFolderPath('MyDocuments')
+foreach ($vm in $VMs) {
+    $vmName = $vm.Name
+    $gpuProfile = $vm.ExtensionData.Config.Hardware.Device.Backing.vgpu 
+    if ($gpuProfile) {
+        $results += [PSCustomObject]@{
+            VMName      = $vmName
+            GPUProfile  = $gpuProfile
+        }
+    } else {
+        $results += [PSCustomObject]@{
+            VMName      = $vmName
+            GPUProfile  = "None"
+        }
+    }
+}
+
+# Export the results to a CSV file
+$results | Export-Csv -Path "$documentsFolder\vm_gpu_profiles_$clusterName.csv" -NoTypeInformation
