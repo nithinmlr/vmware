@@ -1,0 +1,3 @@
+#Import-Module vmware.powercli
+Set-PowerCLIConfiguration -Scope User -ParticipateInCEIP $false
+Set-PowerCLIConfiguration -InvalidCertificateAction Ignore
