@@ -1,0 +1,57 @@
+<#
+Modify the NTP values curresponding to the variables
+$vcenter = "Define the vCenter name"
+$datacenterName = "XXXX" Mention the datacenter Name
+$ntpServers = @("ntp1", "ntp2")
+Modify the above two variables value accordingly and enter the credentials once pop up Window apears
+The output will be saved in the Current user documents folder.Two files will be 
+generated one with the current config and another with the modified config.
+#>
+
+#Define the variables accordingly
+$vcenter ="XXXX.vCenter" # define the vCenter name
+$datacenterName = "xxxx" #Define the datacenter Name
+$ntpServers = @("ntp1", "ntp2")  # Define new NTP servers
+
+#Establish the vCenter connection
+$cred = Get-Credential 
+Connect-VIServer -server $vcenter -Credential $cred
+
+#Define the folder locations
+$documentsFolder = [Environment]::GetFolderPath('MyDocuments')
+$currentConfig = "$documentsFolder\$datacenterName`_currentNTP.txt"
+$updatedConfig = "$documentsFolder\$datacenterName`_updatedNTP.txt"
+# Retrieve all hosts in the specified datacenter
+$vmhosts = Get-Datacenter -Name $datacenterName | Get-VMHost
+
+# Loop through each host
+foreach ($vmhost in $vmhosts) {
+    Write-Output "Processing host: $($vmhost.Name)"
+     
+    # Step 1: List the current NTP servers
+    $currentNTP = Get-VMHostNtpServer -VMHost $vmhost
+    Write-Output "Current NTP Servers on $($vmhost.Name): `n$currentNTP"
+    Add-Content -Path $currentConfig -Value "Hostname: $($vmhost.Name)"
+    Add-Content -Path $currentConfig -Value $currentNTP
+   
+    # Step 2: Add new NTP servers
+    Add-VMHostNtpServer -VMHost $vmhost -NtpServer $ntpServers
+    
+   # Step 3: remove the current NTP servers
+    foreach ($ntpServer in $currentNTP) {
+        Remove-VMHostNtpServer -VMHost $vmhost -NtpServer $ntpServer -Confirm:$false
+    }
+   #Step 4: validate the Updated NTP server
+   $updatedNTP = Get-VMHostNtpServer -VMHost $vmhost
+   Write-Output "Updated NTP Servers on $($vmhost.Name): `n$updatedNTP"
+   Add-Content -Path $updatedConfig -Value "Hostname: $($vmhost.Name)"
+   Add-Content -Path $updatedConfig -Value $updatedNTP
+
+   #Step 5:restart the NTP service
+
+   Get-VMHost -Name $vmhost | Get-VMHostService | Where-Object {$_.Key -eq "ntpd"} | Restart-VMHostService -Confirm:$false
+   Write-Output "Successfully reconfigured the NTP sever"
+
+}
+
+Disconnect-VIServer -Confirm:$false
