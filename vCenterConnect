@@ -1,0 +1,15 @@
+
+#Connect to multiple vCenters
+$viservers = @("vc1", "vc2")
+$cred = Get-Credential 
+foreach($vcenter in $viservers){
+ try{
+    Write-Host "Attemping to connect the vCenter"
+    Connect-VIServer -server $vcenter -Credential $cred
+
+  }
+  catch{
+  Write-Host "Failed to connect"
+  }
+
+}
